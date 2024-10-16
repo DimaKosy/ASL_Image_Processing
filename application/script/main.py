@@ -67,8 +67,8 @@ def main():
     # frame = cv2.imread(fp)
 
     cam = cv2.VideoCapture(0)
-    # cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) #disable auto exposure
-    # cam.set(cv2.CAP_PROP_AUTOFOCUS, 0) #disable autofocus
+    cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) #disable auto exposure
+    cam.set(cv2.CAP_PROP_AUTOFOCUS, 0) #disable autofocus
 
     cam.set(cv2.CAP_PROP_FRAME_WIDTH,16*res)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT,9*res)
@@ -79,21 +79,29 @@ def main():
         ret, frame = cam.read()
         frame = cv2.flip(frame,1)
 
-        Y, CR, CB = preprocess.Isolate(frame)
+        pre, Y, CR, CB = preprocess.Isolate(frame)
         
+        pre_stich = preprocess.mask_stitch(pre)
+
+
+
         # pre = cv2.multiply(CB,CR)
-        pre = cv2.bitwise_and(CR,CB)
+        # pre = cv2.bitwise_and(CR,CB)
+        # pre = cv2.GaussianBlur(pre,(3,3),12)
         post_Y = cv2.multiply(pre,Y,scale=0.01)
+        post_Ys = cv2.multiply(pre_stich,Y,scale=0.01)
         # post = cv2.merge([post_Y,post_Y, post_Y
         ret, post = cv2.threshold(post_Y,1,255,cv2.THRESH_BINARY)
+        ret, posts = cv2.threshold(post_Ys,1,255,cv2.THRESH_BINARY)
         # print(type(post))
 
-        post = cv2.merge([post,post, post])
-        post = cv2.multiply(frame, post, scale= 1/255)
+        # post = cv2.merge([post,post, post])
+        
+        # post = cv2.multiply(frame, post, scale= 1/255)
         # post = cv2.cvtColor(post, cv2.COLOR_YCR_CB2BGR)
 
+        cv2.imshow('dist', posts)
         cv2.imshow('Camera', post)
-        cv2.imshow('dist', post_Y)
         cv2.imshow('Y', Y)
         cv2.imshow('CR', CR)
         cv2.imshow('CB', CB)

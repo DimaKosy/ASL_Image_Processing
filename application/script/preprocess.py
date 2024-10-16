@@ -28,7 +28,7 @@ TI = cv2.THRESH_TOZERO_INV
 
 Y_Thresh_min = 0
 Y_Thresh_max = 255
-Cr_Thresh_min = 136
+Cr_Thresh_min = 130
 Cr_Thresh_max = 155
 Cb_Thresh_min = 100
 Cb_Thresh_max =  125
@@ -104,12 +104,18 @@ def Isolate(frame):
     # CR = cv2.resize(CR,(0,0),fx=0.2, fy=0.2)
     # CB = cv2.resize(CB,(0,0),fx=0.2, fy=0.2)
 
+    #YCrCb Thresholds for human skin
     cv2.threshold(Y,Y_Thresh_min,255,T, Y)
     cv2.threshold(Y,Y_Thresh_max,255,TI, Y)
     cv2.threshold(CR,Cr_Thresh_min,255,T, CR)
     cv2.threshold(CR,Cr_Thresh_max,255,TI,CR)
     cv2.threshold(CB,Cb_Thresh_min,255,T, CB)
     cv2.threshold(CB,Cb_Thresh_max,255,TI, CB)
+
+    #Bitwise map for Cr Cb
+    Processed_frame = cv2.bitwise_and(CR,CB)
+
+
 
     # CR = cv2.GaussianBlur(CR,(3,3),0.5)
     # CB = cv2.GaussianBlur(CB,(3,3),0.5)
@@ -128,4 +134,15 @@ def Isolate(frame):
     # frame = cv2.merge([Y,CR,CB])
     # frame = cv2.cvtColor(frame,cv2.COLOR_YCrCb2BGR)
 
-    return Y, CR, CB
+    return Processed_frame, Y, CR, CB
+
+def mask_stitch(Mask):
+    shape = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+
+
+
+    Mask = cv2.morphologyEx(Mask,cv2.MORPH_CLOSE,shape)
+    Mask = cv2.morphologyEx(Mask,cv2.MORPH_OPEN,shape)
+
+
+    return Mask
