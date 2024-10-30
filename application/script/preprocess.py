@@ -101,6 +101,7 @@ def Isolate(frame):
 
     Block = [Y,CR,CB] = cv2.split(frame)
     
+    # resize down
     # CR = cv2.resize(CR,(0,0),fx=0.2, fy=0.2)
     # CB = cv2.resize(CB,(0,0),fx=0.2, fy=0.2)
 
@@ -116,33 +117,24 @@ def Isolate(frame):
     Processed_frame = cv2.bitwise_and(CR,CB)
 
 
+    # Resize up and blur
 
     # CR = cv2.GaussianBlur(CR,(3,3),0.5)
     # CB = cv2.GaussianBlur(CB,(3,3),0.5)
 
     # CR = cv2.resize(CR,(0,0),fx=5, fy=5)
     # CB = cv2.resize(CB,(0,0),fx=5, fy=5)
-    
-    # values = Y.ravel()
-    # plt.hist(values,bins=256,range=[0,256],label="Y")
-    # values = CR.ravel()
-    # plt.hist(values,bins=256,range=[0,256],label="U")
-    # values = CB.ravel()
-    # plt.hist(values,bins=256,range=[0,256],label="V")
-
-
-    # frame = cv2.merge([Y,CR,CB])
-    # frame = cv2.cvtColor(frame,cv2.COLOR_YCrCb2BGR)
 
     return Processed_frame, Y, CR, CB
 
 def mask_stitch(Mask):
+
+    #shape kernal
     shape = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
 
+    # masks for opening and closing
+    Mask_out = cv2.morphologyEx(Mask,cv2.MORPH_CLOSE,shape)
+    Mask_out = cv2.morphologyEx(Mask,cv2.MORPH_OPEN,shape)
 
 
-    Mask = cv2.morphologyEx(Mask,cv2.MORPH_CLOSE,shape)
-    Mask = cv2.morphologyEx(Mask,cv2.MORPH_OPEN,shape)
-
-
-    return Mask
+    return Mask_out
