@@ -28,7 +28,10 @@ cmd_list = {
     "cr_thresh":preprocess.set_Cr_thresh,
     "cb_thresh":preprocess.set_Cb_thresh,
     "thresh":preprocess.set_threst_state,
-    "values":preprocess.echo_tresh
+    "values":preprocess.echo_tresh,
+    "stich_CR":preprocess.set_Cr_Stich,
+    "stich_CB":preprocess.set_Cb_Stich,
+    "stich_F":preprocess.set_Final_Stich
 }
 
 
@@ -64,8 +67,8 @@ def main():
     input_thread.start()
 
     cam = cv2.VideoCapture(0)
-    cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) #disable auto exposure
-    cam.set(cv2.CAP_PROP_AUTOFOCUS, 0) #disable autofocus
+    # cam.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) #disable auto exposure
+    # cam.set(cv2.CAP_PROP_AUTOFOCUS, 0) #disable autofocus
 
     cam.set(cv2.CAP_PROP_FRAME_WIDTH,16*res)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT,9*res)
@@ -74,10 +77,10 @@ def main():
     while(running):
         ret, frame = cam.read()
         frame = cv2.flip(frame,1)
-
+        
         pre, Y, CR, CB = preprocess.Isolate(frame)
         
-        pre_stich = preprocess.mask_stitch(pre.copy())
+        pre_stich = preprocess.mask_stitch(pre.copy(),preprocess.Final_stich)
 
 
         #Luminance and thresholding. For easier human use only

@@ -32,6 +32,9 @@ Cr_Thresh_min = 130
 Cr_Thresh_max = 155
 Cb_Thresh_min = 100
 Cb_Thresh_max =  125
+CR_Stich = (3,3)
+CB_Stich = (3,3)
+Final_stich = (5,5)
 
 def echo_tresh():
     print("Y_min {}\nY_max {}\nU_min {}\nU_max {}\nV_min {}\nV_max {}".format(
@@ -94,6 +97,35 @@ def set_Cb_thresh(thresh_list):
     
     Cb_Thresh_min,Cb_Thresh_max, *_ = thresh_list
 
+def stich_extend(thresh_list):
+    if(type(thresh_list)==str):
+        thresh_list = thresh_list.split(" ")
+        thresh_list = [eval(i) for i in thresh_list]
+    
+    stich_1,stich_2, *_ = thresh_list
+
+    stich_1 = max(1, min(stich_1, 100))
+    stich_2 = max(1, min(stich_2, 100))
+
+    return (stich_1,stich_2)
+
+def set_Cr_Stich(thresh_list):
+    stich_extend(thresh_list)
+
+    global CR_Stich
+    CR_Stich = stich_extend(thresh_list)
+
+
+def set_Cb_Stich(thresh_list):
+
+    global CB_Stich
+    CB_Stich = stich_extend(thresh_list)
+
+def set_Final_Stich(thresh_list):
+
+    global Final_stich
+    Final_stich = stich_extend(thresh_list)
+
 
 
 def Isolate(frame):
@@ -113,6 +145,8 @@ def Isolate(frame):
     cv2.threshold(CB,Cb_Thresh_min,255,T, CB)
     cv2.threshold(CB,Cb_Thresh_max,255,TI, CB)
 
+    CR = mask_stitch(CR, CR_Stich)
+    CB = mask_stitch(CB, CB_Stich)
     #Bitwise map for Cr Cb
     Processed_frame = cv2.bitwise_and(CR,CB)
 
@@ -125,16 +159,20 @@ def Isolate(frame):
     # CR = cv2.resize(CR,(0,0),fx=5, fy=5)
     # CB = cv2.resize(CB,(0,0),fx=5, fy=5)
 
+    
+
     return Processed_frame, Y, CR, CB
 
-def mask_stitch(Mask):
+
+def mask_stitch(Mask, size):
 
     #shape kernal
-    shape = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
+    shape1 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(size[0],size[0]))
+    shape2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(size[1],size[1]))
 
     # masks for opening and closing
-    Mask_out = cv2.morphologyEx(Mask,cv2.MORPH_CLOSE,shape)
-    Mask_out = cv2.morphologyEx(Mask,cv2.MORPH_OPEN,shape)
+    Mask_out = cv2.morphologyEx(Mask,cv2.MORPH_CLOSE,shape1)
+    Mask_out = cv2.morphologyEx(Mask,cv2.MORPH_OPEN,shape2)
 
 
     return Mask_out
