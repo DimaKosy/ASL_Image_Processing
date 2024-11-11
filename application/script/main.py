@@ -82,6 +82,8 @@ def main():
         
         pre_stich = preprocess.mask_stitch(pre.copy(),preprocess.Final_stich)
 
+        Contour = preprocess.Contour(pre_stich)
+
 
         #Luminance and thresholding. For easier human use only
         post_Y = cv2.multiply(pre,Y,scale=0.01)
@@ -94,7 +96,7 @@ def main():
         # Outputs
         cv2.imshow('dist', post)
         cv2.imshow('Camera', posts)
-        cv2.imshow('Y', Y)
+        cv2.imshow('Y', Contour)
         cv2.imshow('CR', CR)
         cv2.imshow('CB', CB)
         

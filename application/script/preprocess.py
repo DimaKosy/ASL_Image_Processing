@@ -176,3 +176,22 @@ def mask_stitch(Mask, size):
 
 
     return Mask_out
+
+def Contour(thresh):
+    contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    contours_post = []
+    img = cv2.merge([thresh,thresh,thresh])
+
+    for c in contours:
+        
+
+        if cv2.contourArea(c) < 200:
+            continue
+        
+        
+        contours_post.append(c)
+        pass
+
+    img = cv2.drawContours(img, contours_post, -1, (0,255,0), 3)
+
+    return img
